@@ -1,0 +1,160 @@
+//jshint esversion: 8
+
+const ItemCtrl = (() => {
+ //  const colors = generateRandomColors(6);
+
+ function generateRandomColors(n) {
+  const colors = [];
+  for (let i = 0; i < n; i++) {
+   colors.push(generateColors());
+  }
+  return colors;
+ }
+
+ function generateColors() {
+  // const arr = [];
+  const r = Math.floor(Math.random() * 255 + 1);
+  const g = Math.floor(Math.random() * 255 + 1);
+  const b = Math.floor(Math.random() * 255 + 1);
+  const rgbColors = `rgb(${r}, ${g}, ${b})`;
+
+  // colors.push(rgbColors);
+  // colors.concat(arr);
+  return rgbColors;
+ }
+
+ const generateRandomPickIndex = function(num) {
+  const random = Math.floor(Math.random() * num + 1);
+  return random;
+ };
+
+ return {
+  getAllcolors: function() {
+   const colors = generateRandomColors(6);
+   return colors;
+  },
+  pickRandomIndex: function() {
+   return generateRandomPickIndex(6);
+  },
+  pickColor: function(random) {
+   return this.getAllcolors[random];
+   //  return colors[random];
+  },
+  resetColors: function(n) {
+   const colors = generateRandomColors(n);
+   return colors;
+  },
+  pickColorForReset: function(colors, random) {
+   return colors[random];
+  }
+ };
+})();
+
+const UICtrl = (() => {
+ const selectors = {
+  squares: document.getElementsByClassName("square"),
+  colorDisplay: document.getElementById("colorDisplay"),
+  messageDisplay: document.getElementById("message"),
+  h1: document.querySelector("h1"),
+  resetButton: document.querySelector("#reset"),
+  gameBackgroundColor: "#232323"
+ };
+
+ const {
+  squares,
+  colorDisplay,
+  messageDisplay,
+  h1,
+  gameBackgroundColor
+ } = selectors;
+
+ return {
+  getAllSelectors: function() {
+   return selectors;
+  },
+  populateColors: function(colors) {
+   for (let i = 0; i < squares.length; i++) {
+    squares[i].style.backgroundColor = colors[i];
+   }
+  },
+  colorDisplay: function(color) {
+   colorDisplay.textContent = color;
+  },
+  handleUIForCorrectSquare: function(m, element) {
+   messageDisplay.textContent = m;
+   h1.style.backgroundColor = element.style.backgroundColor;
+   for (let i = 0; i < squares.length; i++) {
+    squares[i].style.backgroundColor = element.style.backgroundColor;
+   }
+  },
+  handleUIForWrongSquare: function(m, element) {
+   messageDisplay.textContent = m;
+   element.style.backgroundColor = gameBackgroundColor;
+  }
+ };
+})();
+
+const App = ((ItemCtrl, UICtrl) => {
+ const colors = ItemCtrl.getAllcolors();
+ const { squares, resetButton } = UICtrl.getAllSelectors();
+ const random = ItemCtrl.pickRandomIndex();
+ const pickedColor = ItemCtrl.pickColor(random);
+ console.log(pickedColor);
+
+ //Load event listeners
+ function loadEventListener() {
+  // const pickSquare = (e) => {
+  // 	// let clickedColor = this.style.backgroundColor;
+  // 	if (e.target.classList.contains("square")) {
+  // 		console.log(e.target);
+  // 	}
+  // };
+  function getSquare(i) {
+   squares[i].addEventListener("click", pickSquare);
+  }
+  // document.querySelector(".container").addEventListener("click", pickSquare);
+  for (let i = 0; i < squares.length; i++) {
+   getSquare(i);
+  }
+
+  resetButton.addEventListener("click", reset);
+ }
+
+ function pickSquare({ target }) {
+  let clickedColor = this.style.backgroundColor;
+  // console.log(clickedColor);
+  //  console.log(target.style.backgroundColor);
+  if (clickedColor === pickedColor) {
+   UICtrl.handleUIForCorrectSquare("Correct!", this);
+  } else {
+   console.log(clickedColor, pickedColor);
+   UICtrl.handleUIForWrongSquare("Try again!", this);
+  }
+ }
+
+ function reset() {
+  // const colors = ItemCtrl.resetColors(6);
+  // const random = ItemCtrl.pickRandomIndex();
+  // const pickedColor = ItemCtrl.pickColorForReset(colors, random);
+  const colors = ItemCtrl.getAllcolors();
+  // const random = ItemCtrl.pickRandomIndex();
+  // const pickedColor = ItemCtrl.pickColor(random);
+  console.log(colors);
+
+  UICtrl.populateColors(colors);
+
+  UICtrl.colorDisplay(pickedColor);
+  console.log(colors, pickedColor);
+ }
+
+ UICtrl.colorDisplay(pickedColor);
+
+ return {
+  init: function() {
+   UICtrl.populateColors(colors);
+   loadEventListener();
+  }
+ };
+})(ItemCtrl, UICtrl);
+
+App.init();
